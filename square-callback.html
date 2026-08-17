@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Returning to ZAPANJ…</title>
+  <style>
+    :root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #272d52; background: #edf0ed; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; text-align: center; }
+    main { width: min(82vw, 660px); padding: 42px; border-radius: 36px; box-shadow: 14px 14px 30px rgba(163,169,166,.42), -14px -14px 30px rgba(255,255,255,.86); }
+    h1 { margin: 0 0 12px; font-size: clamp(42px, 7vw, 72px); letter-spacing: -.05em; }
+    p { color: #737b8d; font-size: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Returning to ZAPANJ</h1>
+    <p>Finishing your payment…</p>
+  </main>
+  <script>
+    (() => {
+      const RESULT_KEY = "zapanj.square.result.v1";
+      const params = new URL(window.location.href).searchParams;
+      const rawData = params.get("data");
+      let result;
+
+      try {
+        if (!rawData) throw new Error("Square did not return transaction data.");
+        // URLSearchParams already percent-decodes the value. Some Square examples
+        // additionally decode it, so tolerate either representation.
+        let decoded = rawData;
+        try { decoded = decodeURIComponent(rawData); } catch {}
+        result = JSON.parse(decoded);
+      } catch (error) {
+        result = { status: "error", error_code: "invalid_callback_data", message: error.message };
+      }
+
+      try { localStorage.setItem(RESULT_KEY, JSON.stringify(result)); } catch {}
+      window.location.replace("./?square_return=1");
+    })();
+  </script>
+</body>
+</html>
